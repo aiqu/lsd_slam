@@ -764,7 +764,7 @@ float SE3Tracker::calcWeightsAndResidual(
 		float rp = *(buf_warped_residual+i); // r_p
 		float gx = *(buf_warped_dx+i);	// \delta_x I
 		float gy = *(buf_warped_dy+i);  // \delta_y I
-		float s = settings.var_weight * *(buf_idepthVar+i);	// \sigma_d^2
+		float s = settings.var_weight * *(buf_idepthVar+i);	// \sigma_d^2, also V_i(p)
 
 
 		// calc dw/dd (first 2 components):
@@ -774,13 +774,13 @@ float SE3Tracker::calcWeightsAndResidual(
 
 		// calc w_p
 		float drpdd = gx * g0 + gy * g1;	// ommitting the minus
-		float w_p = 1.0f / ((cameraPixelNoise2) + s * drpdd * drpdd);
+		float w_p = 1.0f / ((cameraPixelNoise2) + s * drpdd * drpdd);  //cameraPixelNoise2 => 2*sigma_I^2, w_p => sigma_rp^-2
 
 		float weighted_rp = fabs(rp*sqrtf(w_p));
 
 		float wh = fabs(weighted_rp < (settings.huber_d/2) ? 1 : (settings.huber_d/2) / weighted_rp);
 
-		sumRes += wh * w_p * rp*rp;
+		sumRes += wh * w_p * rp*rp; // r = rp/sigma_rp, ||r^2|| = r^2 if |r| < huber/2, |huber*r/2| else
 
 
 		*(buf_weight_p+i) = wh * w_p;

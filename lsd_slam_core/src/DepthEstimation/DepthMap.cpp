@@ -668,7 +668,7 @@ void DepthMap::regularizeDepthMapFillHolesRow(int yMin, int yMax, RunningStats* 
 			if(keyFrameMaxGradBuf[idx]<MIN_ABS_GRAD_DECREASE) continue;
 
 			int* io = validityIntegralBuffer + idx;
-			int val = io[2+2*width] - io[2-3*width] - io[-3+2*width] + io[-3-3*width];
+			int val = io[2+2*width] - io[2-3*width] - io[-3+2*width] + io[-3-3*width]; //sum of val_count of 5x5 surrounding area
 
 
 			if((dest->blacklisted >= MIN_BLACKLIST && val > VAL_SUM_MIN_FOR_CREATE) || val > VAL_SUM_MIN_FOR_UNBLACKLIST)
@@ -676,6 +676,7 @@ void DepthMap::regularizeDepthMapFillHolesRow(int yMin, int yMax, RunningStats* 
 				float sumIdepthObs = 0, sumIVarObs = 0;
 				int num = 0;
 
+                //for all pixels in 5x5 region
 				DepthMapPixelHypothesis* s1max = otherDepthMap + (x-2) + (y+3)*width;
 				for (DepthMapPixelHypothesis* s1 = otherDepthMap + (x-2) + (y-2)*width; s1 < s1max; s1+=width)
 					for(DepthMapPixelHypothesis* source = s1; source < s1+5; source++)
